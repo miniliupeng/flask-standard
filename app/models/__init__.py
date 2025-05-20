@@ -4,4 +4,8 @@
 
 # 模型包
 
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()  # 创建数据库实例
+
 from .user import User  # 导入User模型

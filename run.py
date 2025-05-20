@@ -1,7 +1,7 @@
 import os
 from app import create_app
 
-app = create_app(os.getenv('FLASK_ENV', 'development'))  # 创建应用，从环境变量获取环境名称
+app = create_app(os.getenv('ENV', 'dev'))  # 创建应用，从环境变量获取环境名称
 
 # 在Python中，__name__是一个特殊的内置变量，它表示当前模块的名称。
 # 当你直接运行一个Python文件时，Python会将__name__设置为字符串'__main__'。

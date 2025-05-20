@@ -5,19 +5,22 @@
 ## 目录结构
 
 ```
-flask-mcp/
+flask-standard/
 ├── app/                    # 应用主目录
 │   ├── config/             # 配置文件
+│   ├── controllers/        # 控制器
 │   ├── models/             # 数据模型
+│   ├── services/           # 服务
 │   ├── static/             # 静态文件（CSS, JS, 图片）
 │   ├── templates/          # 模板文件
 │   ├── utils/              # 工具函数
-│   ├── views/              # 视图函数和路由
+│   ├── views/              # 视图函数
 │   └── __init__.py         # 应用初始化
-├── instance/               # 实例配置（不进入版本控制）
-├── tests/                  # 测试代码
 ├── docs/                   # 文档
+├── instance/               # 实例配置（不进入版本控制）
+├── migrations/             # 数据库迁移
 ├── .env.example            # 环境变量示例
+├── tests/                  # 测试代码
 ├── requirements.txt        # 依赖清单
 ├── run.py                  # 运行脚本
 └── README.md               # 项目说明
@@ -28,25 +31,25 @@ flask-mcp/
 1. 创建虚拟环境：
 
 ```bash
-python -m venv venv
+uv venv .venv
 ```
 
 2. 激活虚拟环境：
 
 - Windows:
 ```bash
-venv\Scripts\activate
+.venv\Scripts\activate
 ```
 
 - Linux/Mac:
 ```bash
-source venv/bin/activate
+source .venv\Scripts\activate
 ```
 
 3. 安装依赖：
 
 ```bash
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 4. 设置环境变量：

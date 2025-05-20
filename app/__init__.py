@@ -1,17 +1,17 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from app.config import config
 
-db = SQLAlchemy()  # 创建数据库实例
+from app.config import config
+from app.models import db
+
 migrate = Migrate()  # 创建迁移实例
 
 
-def create_app(config_name="default"):  # 应用工厂函数
+def create_app(env):  # 应用工厂函数
     app = Flask(__name__, instance_relative_config=True)  # 创建Flask应用实例,允许Flask应用从实例文件夹（instance folder）加载配置文件
     
     # 配置加载顺序：环境配置 > 实例配置 > 默认配置
-    app.config.from_object(config[config_name])  # 默认配置：从对象加载配置
+    app.config.from_object(config[env])  # 默认配置：从对象加载配置
     app.config.from_pyfile("config.py", silent=True)  # 实例配置：从文件 instance/config.py 加载配置   silent=True参数表示如果文件不存在也不会报错
 
     db.init_app(app)  # 初始化数据库
