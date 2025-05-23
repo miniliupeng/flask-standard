@@ -1,0 +1,56 @@
+[2025-05-22 17:17:22,310][user_controller.py:147][INFO][23348] - [1][lp][鐧诲綍绯荤粺]
+[2025-05-22 17:17:22,311][request.py:58][INFO][23348] - [][127.0.0.1][http://127.0.0.1:5000/user/login][2025-05-22 17:17:22.238258][26236][23348][{'userName': 'lp', 'password': '123'}][{
+  "code": 0,
+  "data": {
+    "token": "389002856a1a4b5e92223704f891ca2b",
+    "userId": 1,
+    "userName": "lp"
+  },
+  "msg": "\u6210\u529f"
+}
+][2025-05-22 17:17:22.311283][00.073025]
+[2025-05-22 17:18:15,133][user_controller.py:147][INFO][6308] - [1][lp][登录系统]
+[2025-05-22 17:18:15,134][request.py:58][INFO][6308] - [][127.0.0.1][http://127.0.0.1:5000/user/login][2025-05-22 17:18:15.055978][26096][6308][{'userName': 'lp', 'password': '123'}][{
+  "code": 0,
+  "data": {
+    "token": "1176e06e66c646319bd22218d98700f6",
+    "userId": 1,
+    "userName": "lp"
+  },
+  "msg": "\u6210\u529f"
+}
+][2025-05-22 17:18:15.134045][00.078067]
+[2025-05-22 17:18:37,959][user_controller.py:147][INFO][9656] - [1][lp][登录系统]
+[2025-05-22 17:18:37,960][request.py:58][INFO][9656] - [][127.0.0.1][http://127.0.0.1:5000/user/login][2025-05-22 17:18:37.956337][26096][9656][{'userName': 'lp', 'password': '123'}][{
+  "code": 0,
+  "data": {
+    "token": "230201ce56444d7b8aa7793cdd1899ec",
+    "userId": 1,
+    "userName": "lp"
+  },
+  "msg": "\u6210\u529f"
+}
+][2025-05-22 17:18:37.960693][00.004356]
+[2025-05-22 17:18:39,641][exception.py:28][ERROR][6176] - 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+[2025-05-22 17:18:39,641][request.py:58][INFO][6176] - [][127.0.0.1][http://localhost:5000/static/assets/images/arrow-danger.png][2025-05-22 17:18:39.639798][26096][6176][b''][{
+  "code": 404,
+  "msg": "The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again."
+}
+][2025-05-22 17:18:39.641154][00.001356]
+[2025-05-22 17:18:49,610][user_controller.py:147][INFO][23560] - [1][lp][登录系统]
+[2025-05-22 17:18:49,610][request.py:58][INFO][23560] - [][127.0.0.1][http://127.0.0.1:5000/user/login][2025-05-22 17:18:49.606467][26096][23560][{'userName': 'lp', 'password': '123'}][{
+  "code": 0,
+  "data": {
+    "token": "0d903201f3f34aa0836c508c76790f23",
+    "userId": 1,
+    "userName": "lp"
+  },
+  "msg": "\u6210\u529f"
+}
+][2025-05-22 17:18:49.610246][00.003779]
+[2025-05-22 17:19:39,342][exception.py:28][ERROR][20020] - 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+[2025-05-22 17:19:39,344][request.py:58][INFO][20020] - [][127.0.0.1][http://localhost:5000/static/assets/images/arrow-danger.png][2025-05-22 17:19:39.342698][26096][20020][b''][{
+  "code": 404,
+  "msg": "The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again."
+}
+][2025-05-22 17:19:39.344245][00.001547]

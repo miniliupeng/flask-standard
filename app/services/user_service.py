@@ -1,51 +1,62 @@
-from app import db
-from app.models import User
+from app.models.user import User
+from app.services import BaseService
+from app.utils.decorators import Transactional
+from app.utils.enums.user_error_enum import UserErrorEnum
+from app.config.exception import AssertTool
 
-class UserService:
-    """用户服务类，处理用户相关业务逻辑"""
-    
-    @staticmethod
-    def get_all_users():
-        """获取所有用户"""
-        return User.query.all()
-    
-    @staticmethod
-    def get_user_by_id(user_id):
-        """根据ID获取用户"""
-        return User.query.get(user_id)
-    
-    @staticmethod
-    def get_user_by_email(email):
-        """根据邮箱获取用户"""
-        return User.query.filter_by(email=email).first()
-    
-    @staticmethod
-    def create_user(username, email, password):
-        """创建新用户"""
-        user = User(username=username, email=email, password=password)
-        db.session.add(user)
-        db.session.commit()
-        return user
-    
-    @staticmethod
-    def update_user(user, **kwargs):
-        """更新用户信息"""
-        for key, value in kwargs.items():
-            if hasattr(user, key):
-                setattr(user, key, value)
-        db.session.commit()
-        return user
-    
-    @staticmethod
-    def delete_user(user):
-        """删除用户"""
-        db.session.delete(user)
-        db.session.commit()
-    
-    @staticmethod
-    def authenticate(email, password):
-        """验证用户凭证"""
-        user = UserService.get_user_by_email(email)
-        if user and user.check_password(password):
-            return user
-        return None 
+
+class UserService(BaseService):
+    """
+    用户模块业务处理类
+    """
+
+    def login(self, user_name, password):
+        """
+        用户密码登录
+        :param user_name:
+        :param password:
+        :return:
+        """
+        u = self.db.session.query(User).filter(User.user_name == user_name).first()
+        if u is None:
+            AssertTool.raise_biz(UserErrorEnum.U80009001)
+        if u.password != password:
+            AssertTool.raise_biz(UserErrorEnum.U80009002)
+        res = u.to_dict(camel=True)
+        del res["password"]
+        del res["createTime"]
+        del res["updateTime"]
+        del res["isDeleted"]
+        return res
+
+    @Transactional()
+    def save_batch(self, form_list):
+        """
+        批量插入用户-开启事务
+        :param form_list:
+        :return:
+        """
+        # # 使用with的话，会自动执行session.commit()，如异常自动执行session.rollback()
+        # with self.db.session.begin():  # 开启事物
+        #     for form in form_list:
+        #         model = User(**form)
+        #         self.db.session.add(model)
+        #         # flush会将session中的数据刷到数据库中，使数据库主键自增；但不会写到磁盘里
+        #         self.db.session.flush()
+
+        for form in form_list:
+            model = User(**form)
+            self.db.session.add(model)
+            # flush会将session中的数据刷到数据库中，使数据库主键自增；但不会写到磁盘里
+            self.db.session.flush()
+
+    def save_batch_no_trans(self, form_list):
+        """
+        批量插入用户-未开启事务
+        :param form_list:
+        :return:
+        """
+        for form in form_list:
+            model = User(**form)
+            self.db.session.add(model)
+            self.db.session.commit()

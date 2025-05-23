@@ -1,5 +1,4 @@
-import os
-from .base import BaseConfig, basedir
+from .base import BaseConfig
 
 
 class Production(BaseConfig):

@@ -3,9 +3,9 @@ from flask import Blueprint
 main_bp = Blueprint("main", __name__)  # 创建主蓝图
 
 # 导入路由模块
-from . import main  # 导入主页面视图
-from . import auth  # 导入认证视图
-from . import user  # 导入用户视图
+# from . import main  # 导入主页面视图
+# from . import auth  # 导入认证视图
+# from . import user  # 导入用户视图
 
 # 这种导入方式的目的是：
 # 1. 先创建蓝图对象

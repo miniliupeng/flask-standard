@@ -1,89 +1,182 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
+from flask import Blueprint, current_app, request
+
+from app.models import db
+from . import R
+from app.models.user import User
 from app.services.user_service import UserService
-from app.services.auth_service import AuthService
-from app import db
+from app.utils.validators import BasePageForm
+from app.utils.validators.id_validator import IdForm, IdsForm
+from app.utils.validators.user_validator import UserForm, LoginForm
+from app.utils.decorators.auth import HasPerm
+from app.utils.token import TokenStrategyFactory
 
 # 创建用户蓝图
-user_bp = Blueprint('user', __name__, url_prefix='/user')
+user = Blueprint("user", __name__, url_prefix="/user")
 
-@user_bp.route('/profile')
-def profile():
-    """显示用户个人资料"""
-    # 获取当前用户
-    user = AuthService.get_current_user()
-    if not user:
-        flash('请先登录', 'error')
-        return redirect(url_for('auth.login'))
-    
-    return render_template('user/profile.html', user=user)
+# 声明用户业务服务
+user_service = UserService(model=User)
 
-@user_bp.route('/edit', methods=['GET', 'POST'])
-def edit_profile():
-    """编辑用户个人资料"""
-    # 获取当前用户
-    user = AuthService.get_current_user()
-    if not user:
-        flash('请先登录', 'error')
-        return redirect(url_for('auth.login'))
-    
-    if request.method == 'POST':
-        # 获取表单数据
-        username = request.form.get('username')
-        
-        # 验证数据
-        if not username:
-            flash('用户名不能为空', 'error')
-            return render_template('user/edit_profile.html', user=user)
-        
-        # 更新用户信息
-        try:
-            UserService.update_user(user, username=username)
-            flash('个人资料已更新', 'success')
-            return redirect(url_for('user.profile'))
-        except Exception as e:
-            flash(f'更新失败: {str(e)}', 'error')
-            return render_template('user/edit_profile.html', user=user)
-    
-    # GET请求，显示编辑表单
-    return render_template('user/edit_profile.html', user=user)
 
-@user_bp.route('/change_password', methods=['GET', 'POST'])
-def change_password():
-    """修改密码"""
-    # 获取当前用户
-    user = AuthService.get_current_user()
-    if not user:
-        flash('请先登录', 'error')
-        return redirect(url_for('auth.login'))
-    
-    if request.method == 'POST':
-        # 获取表单数据
-        current_password = request.form.get('current_password')
-        new_password = request.form.get('new_password')
-        confirm_password = request.form.get('confirm_password')
-        
-        # 验证数据
-        if not current_password or not new_password or not confirm_password:
-            flash('所有字段都必须填写', 'error')
-            return render_template('user/change_password.html')
-        
-        if new_password != confirm_password:
-            flash('新密码两次输入不一致', 'error')
-            return render_template('user/change_password.html')
-        
-        if not user.check_password(current_password):
-            flash('当前密码不正确', 'error')
-            return render_template('user/change_password.html')
-        
-        # 更新密码
-        try:
-            user.set_password(new_password)
-            db.session.commit()
-            flash('密码已更新', 'success')
-            return redirect(url_for('user.profile'))
-        except Exception as e:
-            flash(f'更新失败: {str(e)}', 'error')
-            return render_template('user/change_password.html')
-    
-    # GET请求，显示修改密码表单
-    return render_template('user/change_password.html') 
+@user.route("/get", methods=["POST"])
+@HasPerm(access="user:get", name="通过id获取用户信息")  # 权限装饰器要放在最下面，要不然不生效。
+def user_get():
+    """
+    通过id获取用户信息
+    :return:
+    """
+    form = IdForm()
+    form.validate_for_api()
+    # 可通过form.data获取所有提交参数
+    # 或者直接拿id值 id=form.id.data
+    # u = User.query.filter_by(id=form.id.data).first()
+    # 通过主键查询
+
+    # u = User.query.get(form.id.data)
+
+    u = user_service.get(form)
+    if u is not None:
+        # return R.data({
+        #     "id": u.id,
+        #     "userName": u.user_name,
+        #     "realName": u.real_name
+        # })
+        return R.data(u.to_dict(camel=True))
+    else:
+        return R.fail("该记录不存在")
+
+
+@user.route("/list", methods=["POST"])
+@HasPerm(access="user:list", name="分页查询用户列表")
+def user_list():
+    """
+    分页查询用户列表
+    :return:
+    """
+    form = BasePageForm()
+    form.validate_for_api()
+    # 可通过form.data获取所有提交参数
+    # 可通过form.pageNum.data获取pageNum
+    # 可通过form.pageSize.data获取pageSize
+
+    # user_obj=User.query.filter().paginate(page=form.pageNum.data, per_page=form.pageSize.data, error_out=False)
+
+    # user_obj = DbTool.filter_by_custom(User).paginate(page=form.pageNum.data, per_page=form.pageSize.data, error_out=False)
+
+    # print(user_obj.page) # 当前页码-从1开始
+    # print(user_obj.per_page) # 每页大小
+    # print(user_obj.total)    # 总记录数
+    # print(user_obj.items)    # 数据集
+
+    # return R.data(User.to_page(user_obj))
+
+    return R.data(user_service.list(form))
+
+
+@user.route("/save", methods=["POST"])
+@HasPerm(access="user:save", name="添加用户")
+def user_save():
+    """
+    添加用户
+    :return:
+    """
+    form = UserForm()
+    form.validate_for_api()
+    # 可通过form.data获取所有提交参数
+    # u = User()
+    # u.user_name = form.data.get("userName")
+    # u.real_name = form.data.get("realName")
+    # u.password = form.data.get("password")
+
+    # u = User(**form.data)
+
+    # db.session.add(u)
+    # db.session.commit()
+
+    user_service.save(form)
+    return R.success("添加用户成功")
+
+
+@user.route("/update", methods=["POST"])
+@HasPerm(access="user:update", name="修改用户")
+def user_update():
+    """
+    修改用户
+    :return:
+    """
+    form = UserForm()
+    form.validate_for_api()
+    # 可通过form.data获取所有提交参数
+
+    # u = User(**form.data)
+    # User.query.filter_by(id=form.id.data).update(u.to_dict(camel=False))
+    # db.session.commit()
+
+    user_service.update(form)
+    return R.success("修改用户成功")
+
+
+@user.route("/delete", methods=["POST"])
+@HasPerm(access="user:delete", name="删除用户")
+def user_delete():
+    """
+    删除用户
+    :return:
+    """
+    form = IdsForm()
+    form.validate_for_api()
+    # 可通过form.data获取所有提交参数
+
+    # User.query.filter(User.id.in_(form.ids.data)).delete()
+    # db.session.commit()
+
+    user_service.delete(form)
+    return R.success("删除用户成功")
+
+
+@user.route("/login", methods=["POST"])
+def user_login():
+    """
+    登录
+    :return:
+    """
+    form = LoginForm()
+    form.validate_for_api()
+    # 可通过form.data获取所有提交参数
+    # print(form.data)
+    res = user_service.login(form.userName.data, form.password.data)
+    current_app.logger.info("[{id}][{userName}][登录系统]".format(**res))
+    token_strategy = TokenStrategyFactory.get_instance()
+    return R.data(token_strategy.set({"userId": res.get("id"), "userName": res.get("userName")}))
+
+
+@user.route("/logout")
+def user_logout():
+    """
+    退出
+    :return:
+    """
+    token_strategy = TokenStrategyFactory.get_instance()
+    token_strategy.remove(None)
+    return R.success()
+
+
+@user.route("/saveBatch", methods=["POST"])
+def user_save_batch():
+    """
+    批量插入用户-开启事务
+    :return:
+    """
+    # 复杂的表单校验-wtforms支持不是很好，这里先不校验
+    user_service.save_batch(request.get_json())
+    return R.success("添加成功")
+
+
+@user.route("/saveBatchNoTrans", methods=["POST"])
+def user_save_batch_no_trans():
+    """
+    批量插入用户-未开启事务
+    :return:
+    """
+    # 复杂的表单校验-wtforms支持不是很好，这里先不校验
+    user_service.save_batch_no_trans(request.get_json())
+    return R.success("添加成功")

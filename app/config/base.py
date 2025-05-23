@@ -1,6 +1,7 @@
 import os
 from urllib import parse
 
+
 class BaseConfig:
     """
     基础配置
@@ -15,14 +16,14 @@ class BaseConfig:
     DB_PASSWORD = os.getenv("DB_PASSWORD", "123456")  # 数据库密码
     # 数据库相关配置开始
     # 防止密码中有特殊字符，需要使用parse.quote_plus进行转义
-    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{DB_USER}:{parse.quote_plus(DB_PASSWORD)}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4'
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{parse.quote_plus(DB_PASSWORD)}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_size': 5,
-        'pool_timeout': 90,
-        'pool_recycle': 7200,
-        'max_overflow': 1024
+        "pool_size": 5,
+        "pool_timeout": 90,
+        "pool_recycle": 7200,
+        "max_overflow": 1024,
     }
     # 数据库相关配置结束
     JSON_AS_ASCII = False  # 禁止中文转义'
@@ -35,7 +36,7 @@ class BaseConfig:
     # 环境变量中获取数据库REDIS_PASSWORD
     REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
     # REDIS_URL = "redis://:password@localhost:6379/0" --->flask-redis需要该配置
-    REDIS_URL = f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0'
+    REDIS_URL = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0"
     # ------redis相关配置------
 
     # ------token相关配置------
@@ -51,7 +52,30 @@ class BaseConfig:
     TOKEN_STRATEGY = os.getenv("TOKEN_STRATEGY", "cache")
     # ------token相关配置------
 
-    
+    # ------日志相关配置------
+    # 日志格式输出配置
+    LOG_FORMATTER = os.getenv(
+        "LOG_FORMATTER",
+        "[%(asctime)s][%(filename)s:%(lineno)d][%(levelname)s][%(thread)d] - %(message)s",
+    )
+    # 日志等级DEBUG/INFO/WARN/ERROR
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
+    # 日志存放目录-文件日志默认存放在项目根目录下的logs目录下
+    LOG_PATH = os.getenv("LOG_PATH", None)
+    # 日志处理器 StreamHandler/TimedRotatingFileHandler/RotatingFileHandler
+    LOG_HANDLER = os.getenv("LOG_HANDLER", "StreamHandler")
+    # 日志文件最大值默认10M
+    LOG_MAX_BYTES = int(os.getenv("LOG_MAX_BYTES", 1024 * 1024 * 10))
+    # # 保留日志文件数
+    LOG_BACKUP_COUNT = int(os.getenv("LOG_BACKUP_COUNT", 30))
+    # ------日志相关配置------
+
+    # ------请求日志配置------
+    # 是否启用请求日志记录
+    REQUEST_LOG_ENABLE = bool(os.getenv("REQUEST_LOG_ENABLE", True))
+    # 不做请求日志的接口，例：['/user/get','/user/list']
+    IGNORE_LIST = []
+    # ------请求日志配置------
 
     @staticmethod
     def init_app(app):

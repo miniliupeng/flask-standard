@@ -1,8 +1,8 @@
-# controllers包
-# 包含处理HTTP请求的控制器类
+# 控制层
 from flask import jsonify
 
 
+#规范化控制层的整个请求入参出参
 class R:
     @staticmethod
     def success(msg="成功"):
